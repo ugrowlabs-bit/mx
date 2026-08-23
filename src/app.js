@@ -1,10 +1,13 @@
 import { currencyCodes, destinationByPath, destinations, flag, localePages } from "./data.js";
 import { interpolate, messages } from "./i18n.js";
 import { RATE_STORAGE_KEY, buildRateUrl, convert, isFresh, parseRateResponse } from "./rates.js";
+import { buildRoute, parseRoute } from "./router.js";
 
+const appRoot = new URL("../", import.meta.url);
+const route = parseRoute(window.location.pathname, appRoot.pathname, localePages, currencyCodes);
 const pageDestination = destinationByPath(document.documentElement.dataset.destination);
 const requestedLocale = document.documentElement.dataset.locale;
-const localePage = localePages.find((item) => item.locale === requestedLocale);
+const localePage = route.localePage || localePages.find((item) => item.locale === requestedLocale);
 const locale = localePage?.locale || pageDestination?.locale || "en";
 const text = messages(locale);
 const selectionKey = "fx-selected-currencies-v1";
@@ -30,6 +33,7 @@ let activeAmount = 100;
 let deferredInstallPrompt = null;
 
 function loadSelection() {
+  if (route.currencies.length) return route.currencies;
   try {
     const stored = JSON.parse(localStorage.getItem(selectionKey));
     const valid = stored?.filter((code) => currencyCodes.includes(code));
@@ -51,6 +55,11 @@ function loadRates() {
 
 function saveSelection() {
   localStorage.setItem(selectionKey, JSON.stringify(selectedCurrencies));
+}
+
+function syncRoute() {
+  const localePath = localePages.find((item) => item.locale === locale)?.path || "en";
+  history.replaceState(null, "", buildRoute(appRoot, localePath, selectedCurrencies));
 }
 
 function countryName(country) {
@@ -127,6 +136,7 @@ function handleRowAction(code, action) {
     [selectedCurrencies[index + 1], selectedCurrencies[index]] = [selectedCurrencies[index], selectedCurrencies[index + 1]];
   }
   saveSelection();
+  syncRoute();
   renderCurrencies();
 }
 
@@ -171,6 +181,7 @@ async function addCurrency(code) {
   if (!selectedCurrencies.includes(code)) {
     selectedCurrencies.push(code);
     saveSelection();
+    syncRoute();
     renderCurrencies();
     await refreshRates();
   }
@@ -252,8 +263,7 @@ document.querySelector("#closeDialog").addEventListener("click", () => dialog.cl
 searchInput.addEventListener("input", () => renderDestinations(searchInput.value));
 refreshButton.addEventListener("click", () => refreshRates({ force: true }));
 languageSelect.addEventListener("change", () => {
-  const appRoot = new URL("../", import.meta.url);
-  window.location.href = new URL(languageSelect.value ? `${languageSelect.value}/` : "./", appRoot).href;
+  window.location.href = buildRoute(appRoot, languageSelect.value, selectedCurrencies);
 });
 
 window.addEventListener("beforeinstallprompt", (event) => {

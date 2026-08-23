@@ -1,7 +1,8 @@
-const CACHE_NAME = "fx-shell-v2";
+const CACHE_NAME = "fx-shell-v3";
 const APP_SHELL = [
   "./",
   "./index.html",
+  "./404.html",
   "./styles.css",
   "./manifest.webmanifest",
   "./icons/icon.svg",
@@ -9,6 +10,7 @@ const APP_SHELL = [
   "./src/data.js",
   "./src/i18n.js",
   "./src/rates.js",
+  "./src/router.js",
 ];
 
 self.addEventListener("install", (event) => {

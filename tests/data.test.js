@@ -19,7 +19,8 @@ test("모든 여행지에 생성된 진입 페이지가 있다", async () => {
 test("영어 루트와 언어 코드별 진입 페이지를 제공한다", async () => {
   assert.equal(localePages[0].path, "");
   assert.ok(localePages.some(({ path, locale }) => path === "ko" && locale === "ko"));
-  await Promise.all(localePages.filter(({ path }) => path).map(({ path }) => access(`${path}/index.html`)));
+  await Promise.all(localePages.map(({ path }) => access(`${path || "en"}/index.html`)));
+  await Promise.all(localePages.map(({ path }) => access(`${path || "en"}/krw/usd/thb/index.html`)));
   await access("KO/index.html");
 });
 

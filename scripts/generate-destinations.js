@@ -1,16 +1,16 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import { destinations, localePages } from "../src/data.js";
 
-const appPage = ({ locale }) => `<!doctype html>
+const appPage = ({ locale }, assetPrefix = "../") => `<!doctype html>
 <html lang="${locale}" data-locale="${locale}">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#fb6b35" />
     <meta name="description" content="Travel currency converter in ${locale}." />
-    <link rel="manifest" href="../manifest.webmanifest" />
-    <link rel="icon" href="../icons/icon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="../styles.css" />
+    <link rel="manifest" href="${assetPrefix}manifest.webmanifest" />
+    <link rel="icon" href="${assetPrefix}icons/icon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="${assetPrefix}styles.css?v=5" />
     <title>FX — Travel currency converter</title>
   </head>
   <body>
@@ -22,7 +22,7 @@ const appPage = ({ locale }) => `<!doctype html>
     </main>
     <dialog class="currency-dialog" id="currencyDialog"><div class="dialog-header"><label class="search-box"><span>⌕</span><input id="currencySearch" type="search" autocomplete="off" placeholder="Search country or currency" /></label><button class="close-button" id="closeDialog" type="button" aria-label="Close">×</button></div><h2 id="popularTitle">Popular destinations</h2><div class="destination-list" id="destinationList"></div><p class="empty-state" id="emptyState" hidden>No matching destination</p></dialog>
     <noscript>JavaScript is required to use this converter.</noscript>
-    <script type="module" src="../src/app.js"></script>
+    <script type="module" src="${assetPrefix}src/app.js?v=5"></script>
   </body>
 </html>
 `;
@@ -31,9 +31,12 @@ const redirectPage = (languagePath) => `<!doctype html>
 <html lang="en"><head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><meta http-equiv="refresh" content="0; url=../${languagePath ? `${languagePath}/` : ""}" /><link rel="canonical" href="../${languagePath ? `${languagePath}/` : ""}" /><title>FX</title></head><body><script>location.replace("../${languagePath ? `${languagePath}/` : ""}")</script></body></html>
 `;
 
-for (const page of localePages.filter(({ path }) => path)) {
-  await mkdir(page.path, { recursive: true });
-  await writeFile(`${page.path}/index.html`, appPage(page));
+for (const page of localePages) {
+  const languagePath = page.path || "en";
+  await mkdir(languagePath, { recursive: true });
+  await writeFile(`${languagePath}/index.html`, appPage(page));
+  await mkdir(`${languagePath}/krw/usd/thb`, { recursive: true });
+  await writeFile(`${languagePath}/krw/usd/thb/index.html`, appPage(page, "../../../../"));
 }
 
 await mkdir("KO", { recursive: true });
@@ -47,4 +50,4 @@ for (const destination of destinations) {
   await writeFile(`${destination.path}/index.html`, redirectPage(languagePath));
 }
 
-console.log(`Generated ${localePages.length - 1} language pages, an uppercase KO alias, and ${destinations.length} compatibility redirects.`);
+console.log(`Generated ${localePages.length} language pages with KRW/USD/THB presets, an uppercase KO alias, and ${destinations.length} compatibility redirects.`);
