@@ -16,9 +16,14 @@ h1 { margin: 0; font-size: clamp(3rem, 15vw, 5rem); line-height: .88; letter-spa
 .section-heading { display: flex; align-items: center; justify-content: space-between; padding: 17px 18px 10px; }
 .section-heading h2 { margin: 0; font-size: .72rem; color: #777b72; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
 .section-heading span { display: grid; place-items: center; min-width: 24px; height: 24px; border-radius: 99px; background: #e8f4e9; color: #267347; font-size: .72rem; font-weight: 800; }
-.currency-field { position: relative; display: grid; grid-template-columns: 42px 76px minmax(0, 1fr); align-items: center; min-height: 86px; padding: 12px 14px; border-bottom: 1px solid rgba(31, 33, 29, .08); transition: background 160ms ease; }
+.currency-field { position: relative; display: grid; grid-template-columns: 24px 42px 76px minmax(0, 1fr); align-items: center; min-height: 86px; padding: 12px 14px 12px 8px; border-bottom: 1px solid rgba(31, 33, 29, .08); transition: background 160ms ease, transform 160ms ease, box-shadow 160ms ease; }
 .currency-field.active { background: #f5fbf4; }
+.currency-field.dragging { z-index: 5; background: #f5fbf4; box-shadow: 0 10px 30px rgba(28, 43, 29, .16); transform: scale(1.015); }
+.currency-field.swiping { box-shadow: 110px 0 0 #d9584f; transition: none; }
+.is-dragging .currency-field:not(.dragging) { transition: transform 120ms ease; }
 .currency-field.home-currency::before { position: absolute; inset-block: 13px; inset-inline-start: 0; width: 3px; border-radius: 0 4px 4px 0; background: #3b9b62; content: ""; }
+.drag-handle { display: grid; width: 22px; height: 38px; place-items: center; padding: 0; border: 0; outline: 0; background: transparent; color: #9ca198; cursor: grab; font-size: 1rem; touch-action: none; user-select: none; }
+.drag-handle:active { color: #267347; cursor: grabbing; }
 .currency-symbol { display: grid; place-items: center; width: 35px; height: 35px; overflow: hidden; border-radius: 50%; background: #edf1e9; font-size: .92rem; font-weight: 850; }
 .currency-meta { display: flex; min-width: 0; flex-direction: column; gap: 3px; }
 .currency-meta strong { font-size: .86rem; }

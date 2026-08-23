@@ -96,6 +96,7 @@ function createCurrencyRow(code, index) {
   label.className = `currency-field${index === 0 ? " home-currency" : ""}`;
   label.dataset.currency = code;
   label.innerHTML = `
+    <button class="drag-handle" type="button" aria-label="${text.moveUp} / ${text.moveDown}" title="${text.moveUp} / ${text.moveDown}">⠿</button>
     <span class="currency-symbol">${currencySymbol(code)}</span>
     <label class="currency-meta" for="currency-${code}"><strong>${code}</strong><small>${currencyName(code)}</small></label>
     <input id="currency-${code}" inputmode="decimal" autocomplete="off" aria-label="${currencyName(code)}" placeholder="0" />
@@ -114,7 +115,98 @@ function createCurrencyRow(code, index) {
   });
   input.addEventListener("blur", () => label.classList.remove("active"));
   label.querySelectorAll("[data-action]").forEach((button) => button.addEventListener("click", () => handleRowAction(code, button.dataset.action)));
+  attachDragEvents(label.querySelector(".drag-handle"), label);
+  attachSwipeEvents(label, code);
   return label;
+}
+
+function attachSwipeEvents(row, code) {
+  let startX = 0;
+  let startY = 0;
+  let offsetX = 0;
+  let swiping = false;
+
+  const reset = () => {
+    row.classList.remove("swiping");
+    row.style.removeProperty("transform");
+    offsetX = 0;
+    swiping = false;
+  };
+
+  row.addEventListener("pointerdown", (event) => {
+    if (event.button !== 0 || event.target.closest("input, button")) return;
+    startX = event.clientX;
+    startY = event.clientY;
+    offsetX = 0;
+    swiping = true;
+    row.setPointerCapture(event.pointerId);
+  });
+
+  row.addEventListener("pointermove", (event) => {
+    if (!swiping) return;
+    const deltaX = event.clientX - startX;
+    const deltaY = event.clientY - startY;
+    if (Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > 8) {
+      reset();
+      return;
+    }
+    if (deltaX >= 0) return;
+    offsetX = Math.max(deltaX, -110);
+    row.classList.add("swiping");
+    row.style.transform = `translateX(${offsetX}px)`;
+    event.preventDefault();
+  });
+
+  const finish = () => {
+    if (!swiping) return;
+    if (offsetX <= -72 && selectedCurrencies.length > 1) {
+      reset();
+      handleRowAction(code, "remove");
+    } else {
+      reset();
+    }
+  };
+
+  row.addEventListener("pointerup", finish);
+  row.addEventListener("pointercancel", reset);
+  row.addEventListener("lostpointercapture", finish);
+}
+
+function attachDragEvents(handle, row) {
+  let dragging = false;
+
+  const finish = () => {
+    if (!dragging) return;
+    dragging = false;
+    row.classList.remove("dragging");
+    fieldsRoot.classList.remove("is-dragging");
+    selectedCurrencies = [...fieldsRoot.querySelectorAll(".currency-field")].map((item) => item.dataset.currency);
+    saveSelection();
+    syncRoute();
+    renderCurrencies();
+  };
+
+  handle.addEventListener("pointerdown", (event) => {
+    if (event.button !== 0) return;
+    dragging = true;
+    handle.setPointerCapture(event.pointerId);
+    row.classList.add("dragging");
+    fieldsRoot.classList.add("is-dragging");
+    event.preventDefault();
+  });
+
+  handle.addEventListener("pointermove", (event) => {
+    if (!dragging) return;
+    const target = document.elementFromPoint(event.clientX, event.clientY)?.closest(".currency-field");
+    if (!target || target === row || target.parentElement !== fieldsRoot) return;
+    const targetRect = target.getBoundingClientRect();
+    const insertAfter = event.clientY > targetRect.top + targetRect.height / 2;
+    fieldsRoot.insertBefore(row, insertAfter ? target.nextSibling : target);
+  });
+
+  handle.addEventListener("pointerup", finish);
+  handle.addEventListener("pointercancel", finish);
+  handle.addEventListener("lostpointercapture", finish);
 }
 
 function renderCurrencies() {
