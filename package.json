@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "node server.js",
+    "generate:destinations": "node scripts/generate-destinations.js",
     "test": "node --test",
-    "check": "npm test"
+    "check": "npm run generate:destinations && npm test"
   }
 }

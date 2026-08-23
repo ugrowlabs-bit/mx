@@ -1,4 +1,4 @@
-const CACHE_NAME = "baht-now-shell-v1";
+const CACHE_NAME = "fx-shell-v2";
 const APP_SHELL = [
   "./",
   "./index.html",
@@ -6,6 +6,8 @@ const APP_SHELL = [
   "./manifest.webmanifest",
   "./icons/icon.svg",
   "./src/app.js",
+  "./src/data.js",
+  "./src/i18n.js",
   "./src/rates.js",
 ];
 
@@ -31,6 +33,6 @@ self.addEventListener("fetch", (event) => {
         caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
         return response;
       })
-      .catch(() => caches.match(event.request).then((cached) => cached || caches.match("./index.html"))),
+      .catch(() => caches.match(event.request).then((cached) => cached || (event.request.mode === "navigate" ? caches.match("./index.html") : undefined))),
   );
 });

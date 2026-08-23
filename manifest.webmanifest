@@ -1,13 +1,13 @@
 {
-  "name": "Baht Now — 바트·원화·달러 비교",
-  "short_name": "Baht Now",
-  "description": "태국 바트, 원화, 달러를 한 화면에서 바로 비교하세요.",
+  "name": "FX — Travel currency converter",
+  "short_name": "FX",
+  "description": "Compare every currency you need in one clear view.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "background_color": "#f4efe4",
   "theme_color": "#fb6b35",
-  "lang": "ko-KR",
+  "lang": "en",
   "icons": [
     { "src": "./icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
   ]
