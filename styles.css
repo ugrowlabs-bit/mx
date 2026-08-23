@@ -1,0 +1,101 @@
+:root {
+  color-scheme: light;
+  font-family: Inter, Pretendard, "Noto Sans KR", system-ui, sans-serif;
+  color: #222019;
+  background: #f4efe4;
+  font-synthesis: none;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100dvh;
+  background:
+    radial-gradient(circle at 95% 3%, rgba(251, 107, 53, 0.22), transparent 32%),
+    linear-gradient(160deg, #fffaf0 0%, #f4efe4 100%);
+}
+
+button, input { font: inherit; }
+button { -webkit-tap-highlight-color: transparent; }
+
+.app-shell {
+  width: min(100%, 520px);
+  min-height: 100dvh;
+  margin: 0 auto;
+  padding: max(24px, env(safe-area-inset-top)) 20px max(28px, env(safe-area-inset-bottom));
+}
+
+.hero { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 28px; }
+.eyebrow { margin: 0 0 7px; color: #b94820; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.14em; }
+h1 { margin: 0; font-size: clamp(2.3rem, 12vw, 4rem); line-height: 0.95; letter-spacing: -0.065em; }
+.intro { max-width: 300px; margin: 12px 0 0; color: #726b5d; font-size: 0.95rem; line-height: 1.5; }
+
+.install-button, .refresh-button, .quick-values button {
+  border: 0;
+  cursor: pointer;
+}
+.install-button { flex: 0 0 auto; padding: 10px 12px; border-radius: 999px; background: #222019; color: white; font-size: 0.75rem; font-weight: 700; }
+
+.converter {
+  overflow: hidden;
+  border: 1px solid rgba(34, 32, 25, 0.12);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow: 0 18px 60px rgba(66, 51, 30, 0.11);
+  backdrop-filter: blur(16px);
+}
+
+.currency-field {
+  display: grid;
+  grid-template-columns: 44px 74px minmax(0, 1fr);
+  align-items: center;
+  min-height: 88px;
+  padding: 13px 17px;
+  border-bottom: 1px solid rgba(34, 32, 25, 0.09);
+  transition: background 160ms ease;
+}
+.currency-field.active { background: #fff7e9; }
+.currency-symbol { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; background: #f1eadc; font-size: 1.1rem; font-weight: 800; }
+.currency-meta { display: flex; flex-direction: column; gap: 3px; }
+.currency-meta strong { font-size: 0.88rem; }
+.currency-meta small { color: #8b8375; font-size: 0.66rem; }
+.currency-field input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #222019;
+  font-size: clamp(1.55rem, 8vw, 2.25rem);
+  font-weight: 750;
+  text-align: right;
+  letter-spacing: -0.045em;
+}
+.currency-field input::placeholder { color: #c6bfb2; }
+
+.quick-values { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; padding: 14px; }
+.quick-values button { min-height: 43px; padding: 8px 4px; border-radius: 12px; background: #f1eadc; color: #5e574b; font-size: 0.75rem; font-weight: 750; }
+.quick-values button:active { transform: scale(0.97); background: #e9decb; }
+
+.rate-card { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 16px; padding: 13px 3px; color: #6f685c; font-size: 0.76rem; }
+.status-line { display: flex; align-items: center; gap: 8px; }
+.status-dot { width: 8px; height: 8px; border-radius: 50%; background: #b7b0a5; }
+.status-dot[data-status="fresh"] { background: #2fa66d; box-shadow: 0 0 0 4px rgba(47, 166, 109, 0.12); }
+.status-dot[data-status="cached"] { background: #e39a28; }
+.status-dot[data-status="error"] { background: #d44b3e; }
+.status-dot[data-status="loading"] { animation: pulse 1s infinite alternate; }
+.refresh-button { padding: 8px; background: transparent; color: #b94820; font-size: 0.75rem; font-weight: 800; }
+.refresh-button:disabled { opacity: 0.45; }
+.notice { margin: 19px 3px 0; color: #938b7e; font-size: 0.7rem; line-height: 1.55; }
+
+@keyframes pulse { to { opacity: 0.3; } }
+
+@media (min-width: 700px) {
+  .app-shell { display: flex; min-height: 100dvh; flex-direction: column; justify-content: center; padding-block: 48px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: 0.01ms !important; }
+}
