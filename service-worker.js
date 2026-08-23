@@ -1,4 +1,4 @@
-const CACHE_NAME = "fx-shell-v4";
+const CACHE_NAME = "mx-shell-v5";
 const APP_SHELL = [
   "./",
   "./index.html",

@@ -12,7 +12,7 @@ h1 { margin: 0; font-size: clamp(2.5rem, 12vw, 4.2rem); line-height: .86; letter
 .language-select { max-width: 130px; min-height: 38px; padding: 0 28px 0 11px; border: 1px solid rgba(31, 33, 29, .12); border-radius: 999px; outline: none; background: rgba(255, 255, 255, .76); color: #32352f; font-size: .72rem; font-weight: 750; }
 .install-button, .refresh-button, .add-button, .close-button, .row-actions button, .destination-option { border: 0; cursor: pointer; }
 .install-button { flex: 0 0 auto; padding: 10px 12px; border-radius: 999px; background: #1f211d; color: white; font-size: .72rem; font-weight: 750; }
-.converter { overflow: hidden; border: 1px solid rgba(31, 33, 29, .12); border-radius: 24px; background: rgba(255, 255, 255, .82); box-shadow: 0 18px 60px rgba(42, 52, 39, .1); backdrop-filter: blur(16px); }
+.converter { overflow: hidden; scroll-margin-top: max(10px, env(safe-area-inset-top)); border: 1px solid rgba(31, 33, 29, .12); border-radius: 24px; background: rgba(255, 255, 255, .82); box-shadow: 0 18px 60px rgba(42, 52, 39, .1); backdrop-filter: blur(16px); }
 .section-heading { display: flex; align-items: center; justify-content: space-between; padding: 17px 18px 10px; }
 .section-heading h2 { margin: 0; font-size: .72rem; color: #777b72; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
 .section-heading span { display: grid; place-items: center; min-width: 24px; height: 24px; border-radius: 99px; background: #e8f4e9; color: #267347; font-size: .72rem; font-weight: 800; }

@@ -10,7 +10,7 @@ const appPage = ({ locale }, assetPrefix = "../") => `<!doctype html>
     <meta name="description" content="Travel currency converter in ${locale}." />
     <link rel="manifest" href="${assetPrefix}manifest.webmanifest" />
     <link rel="icon" href="${assetPrefix}icons/icon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="${assetPrefix}styles.css?v=6" />
+    <link rel="stylesheet" href="${assetPrefix}styles.css?v=7" />
     <title>Money Exchange — Travel currency converter</title>
   </head>
   <body>
@@ -22,7 +22,7 @@ const appPage = ({ locale }, assetPrefix = "../") => `<!doctype html>
     </main>
     <dialog class="currency-dialog" id="currencyDialog"><div class="dialog-header"><label class="search-box"><span>⌕</span><input id="currencySearch" type="search" autocomplete="off" placeholder="Search country or currency" /></label><button class="close-button" id="closeDialog" type="button" aria-label="Close">×</button></div><h2 id="popularTitle">Popular destinations</h2><div class="destination-list" id="destinationList"></div><p class="empty-state" id="emptyState" hidden>No matching destination</p></dialog>
     <noscript>JavaScript is required to use this converter.</noscript>
-    <script type="module" src="${assetPrefix}src/app.js?v=6"></script>
+    <script type="module" src="${assetPrefix}src/app.js?v=7"></script>
   </body>
 </html>
 `;

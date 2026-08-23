@@ -112,12 +112,22 @@ function createCurrencyRow(code, index) {
   input.addEventListener("focus", () => {
     activeCurrency = code;
     label.classList.add("active");
+    scrollConverterToTop();
   });
   input.addEventListener("blur", () => label.classList.remove("active"));
   label.querySelectorAll("[data-action]").forEach((button) => button.addEventListener("click", () => handleRowAction(code, button.dataset.action)));
   attachDragEvents(label.querySelector(".drag-handle"), label);
   attachSwipeEvents(label, code);
   return label;
+}
+
+function scrollConverterToTop() {
+  if (!window.matchMedia("(max-width: 699px)").matches) return;
+  const converter = document.querySelector(".converter");
+  const align = () => converter.scrollIntoView({ behavior: "smooth", block: "start" });
+  window.visualViewport?.addEventListener("resize", align, { once: true });
+  requestAnimationFrame(align);
+  setTimeout(align, 280);
 }
 
 function attachSwipeEvents(row, code) {
