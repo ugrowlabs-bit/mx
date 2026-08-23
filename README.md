@@ -2,8 +2,8 @@
 
 태국 바트, 원화, 달러를 한 화면에서 즉시 비교하는 모바일 우선 PWA다.
 
-- 공개 사이트: https://ugrowlabs-bit.github.io/krw-usd-thb-converter/
-- GitHub 저장소: https://github.com/ugrowlabs-bit/krw-usd-thb-converter
+- 공개 사이트: https://ugrowlabs-bit.github.io/fx/
+- GitHub 저장소: https://github.com/ugrowlabs-bit/fx
 
 ## 로컬 실행
 
