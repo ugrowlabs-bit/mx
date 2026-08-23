@@ -36,6 +36,9 @@ for (const page of localePages.filter(({ path }) => path)) {
   await writeFile(`${page.path}/index.html`, appPage(page));
 }
 
+await mkdir("KO", { recursive: true });
+await writeFile("KO/index.html", redirectPage("ko"));
+
 for (const destination of destinations) {
   const languagePath = localePages.find(({ locale }) => locale === destination.locale)?.path
     ?? localePages.find(({ locale }) => locale === destination.locale.split("-")[0])?.path
@@ -44,4 +47,4 @@ for (const destination of destinations) {
   await writeFile(`${destination.path}/index.html`, redirectPage(languagePath));
 }
 
-console.log(`Generated ${localePages.length - 1} language pages and ${destinations.length} compatibility redirects.`);
+console.log(`Generated ${localePages.length - 1} language pages, an uppercase KO alias, and ${destinations.length} compatibility redirects.`);

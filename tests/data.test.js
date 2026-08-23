@@ -20,6 +20,7 @@ test("영어 루트와 언어 코드별 진입 페이지를 제공한다", async
   assert.equal(localePages[0].path, "");
   assert.ok(localePages.some(({ path, locale }) => path === "ko" && locale === "ko"));
   await Promise.all(localePages.filter(({ path }) => path).map(({ path }) => access(`${path}/index.html`)));
+  await access("KO/index.html");
 });
 
 test("대표 locale이 영어 대신 번역 문자열을 제공한다", () => {
