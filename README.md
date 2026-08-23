@@ -2,9 +2,9 @@
 
 여행에 필요한 통화를 원하는 만큼 추가해 한 화면에서 비교하는 모바일 우선 PWA다.
 
-- 공개 사이트: https://ugrowlabs-bit.github.io/fx/
-- 한국어 KRW·USD·THB: https://ugrowlabs-bit.github.io/fx/ko/krw/usd/thb/
-- GitHub 저장소: https://github.com/ugrowlabs-bit/fx
+- 공개 사이트: https://ugrowlabs-bit.github.io/mx/
+- 한국어 KRW·USD·THB: https://ugrowlabs-bit.github.io/mx/ko/krw/usd/thb/
+- GitHub 저장소: https://github.com/ugrowlabs-bit/mx
 
 ## 로컬 실행
 

@@ -17,7 +17,7 @@ const mime = {
 createServer(async (request, response) => {
   try {
     const pathname = decodeURIComponent(new URL(request.url, "http://localhost").pathname);
-    const relativePath = normalize(pathname).replace(/^(\.\.(\/|\\|$))+/, "").replace(/^\//, "").replace(/^fx\//, "");
+    const relativePath = normalize(pathname).replace(/^(\.\.(\/|\\|$))+/, "").replace(/^\//, "").replace(/^(fx|mx)\//, "");
     let filePath = join(root, relativePath || "index.html");
     if ((await stat(filePath)).isDirectory()) filePath = join(filePath, "index.html");
     response.writeHead(200, { "Content-Type": mime[extname(filePath)] || "application/octet-stream", "Cache-Control": "no-cache" });

@@ -6,7 +6,7 @@ button { -webkit-tap-highlight-color: transparent; }
 .app-shell { width: min(100%, 560px); min-height: 100dvh; margin: 0 auto; padding: max(24px, env(safe-area-inset-top)) 18px max(28px, env(safe-area-inset-bottom)); }
 .hero { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 26px; }
 .eyebrow { margin: 0 0 7px; color: #267347; font-size: .68rem; font-weight: 850; letter-spacing: .13em; }
-h1 { margin: 0; font-size: clamp(3rem, 15vw, 5rem); line-height: .88; letter-spacing: -.08em; }
+h1 { margin: 0; font-size: clamp(2.5rem, 12vw, 4.2rem); line-height: .86; letter-spacing: -.07em; }
 .intro { max-width: 330px; margin: 14px 0 0; color: #6c7067; font-size: .94rem; line-height: 1.5; }
 .hero-actions { display: flex; flex: 0 0 auto; flex-direction: column; align-items: flex-end; gap: 8px; }
 .language-select { max-width: 130px; min-height: 38px; padding: 0 28px 0 11px; border: 1px solid rgba(31, 33, 29, .12); border-radius: 999px; outline: none; background: rgba(255, 255, 255, .76); color: #32352f; font-size: .72rem; font-weight: 750; }

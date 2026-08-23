@@ -1,6 +1,6 @@
 {
-  "name": "FX — Travel currency converter",
-  "short_name": "FX",
+  "name": "Money Exchange — Travel currency converter",
+  "short_name": "MX",
   "description": "Compare every currency you need in one clear view.",
   "start_url": "./",
   "scope": "./",
