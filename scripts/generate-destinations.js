@@ -1,13 +1,13 @@
 import { mkdir, writeFile } from "node:fs/promises";
-import { destinations } from "../src/data.js";
+import { destinations, localePages } from "../src/data.js";
 
-const template = ({ path, locale }) => `<!doctype html>
-<html lang="${locale}" data-destination="${path}">
+const appPage = ({ locale }) => `<!doctype html>
+<html lang="${locale}" data-locale="${locale}">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#fb6b35" />
-    <meta name="description" content="Travel currency converter for this destination." />
+    <meta name="description" content="Travel currency converter in ${locale}." />
     <link rel="manifest" href="../manifest.webmanifest" />
     <link rel="icon" href="../icons/icon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="../styles.css" />
@@ -15,7 +15,7 @@ const template = ({ path, locale }) => `<!doctype html>
   </head>
   <body>
     <main class="app-shell">
-      <header class="hero"><div><p class="eyebrow" id="eyebrow">TRAVEL MONEY, SIMPLIFIED</p><h1>FX</h1><p class="intro" id="intro">Compare every currency you need in one clear view.</p></div><button class="install-button" id="installButton" type="button" hidden>Add to home screen</button></header>
+      <header class="hero"><div><p class="eyebrow" id="eyebrow">TRAVEL MONEY, SIMPLIFIED</p><h1>FX</h1><p class="intro" id="intro">Compare every currency you need in one clear view.</p></div><div class="hero-actions"><select class="language-select" id="languageSelect" aria-label="Page language"></select><button class="install-button" id="installButton" type="button" hidden>Add to home screen</button></div></header>
       <section class="converter" aria-labelledby="selectedTitle"><div class="section-heading"><h2 id="selectedTitle">Selected currencies</h2><span id="currencyCount"></span></div><div id="currencyFields"></div><button class="add-button" id="addButton" type="button"><span>＋</span> Add currency</button></section>
       <section class="rate-card" aria-live="polite"><div class="status-line"><span class="status-dot" id="statusDot"></span><span id="rateStatus">Checking the latest rates…</span></div><button class="refresh-button" id="refreshButton" type="button">Refresh now</button></section>
       <p class="notice" id="notice">Reference rates only. Card and cash exchange rates may include fees and markup.</p>
@@ -27,9 +27,21 @@ const template = ({ path, locale }) => `<!doctype html>
 </html>
 `;
 
-for (const destination of destinations) {
-  await mkdir(destination.path, { recursive: true });
-  await writeFile(`${destination.path}/index.html`, template(destination));
+const redirectPage = (languagePath) => `<!doctype html>
+<html lang="en"><head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><meta http-equiv="refresh" content="0; url=../${languagePath ? `${languagePath}/` : ""}" /><link rel="canonical" href="../${languagePath ? `${languagePath}/` : ""}" /><title>FX</title></head><body><script>location.replace("../${languagePath ? `${languagePath}/` : ""}")</script></body></html>
+`;
+
+for (const page of localePages.filter(({ path }) => path)) {
+  await mkdir(page.path, { recursive: true });
+  await writeFile(`${page.path}/index.html`, appPage(page));
 }
 
-console.log(`Generated ${destinations.length} destination pages.`);
+for (const destination of destinations) {
+  const languagePath = localePages.find(({ locale }) => locale === destination.locale)?.path
+    ?? localePages.find(({ locale }) => locale === destination.locale.split("-")[0])?.path
+    ?? "";
+  await mkdir(destination.path, { recursive: true });
+  await writeFile(`${destination.path}/index.html`, redirectPage(languagePath));
+}
+
+console.log(`Generated ${localePages.length - 1} language pages and ${destinations.length} compatibility redirects.`);

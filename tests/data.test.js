@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { access } from "node:fs/promises";
-import { currencyCodes, destinations } from "../src/data.js";
+import { currencyCodes, destinations, localePages } from "../src/data.js";
 import { messages } from "../src/i18n.js";
 
 test("25개 여행지와 필요한 통화 목록을 제공한다", () => {
@@ -16,8 +16,15 @@ test("모든 여행지에 생성된 진입 페이지가 있다", async () => {
   await Promise.all(destinations.map(({ path }) => access(`${path}/index.html`)));
 });
 
+test("영어 루트와 언어 코드별 진입 페이지를 제공한다", async () => {
+  assert.equal(localePages[0].path, "");
+  assert.ok(localePages.some(({ path, locale }) => path === "ko" && locale === "ko"));
+  await Promise.all(localePages.filter(({ path }) => path).map(({ path }) => access(`${path}/index.html`)));
+});
+
 test("대표 locale이 영어 대신 번역 문자열을 제공한다", () => {
   assert.equal(messages("en").add, "Add currency");
+  assert.equal(messages("ko").add, "통화 추가");
   assert.equal(messages("ja").add, "通貨を追加");
   assert.equal(messages("ar").add, "إضافة عملة");
 });

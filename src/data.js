@@ -28,6 +28,26 @@ export const destinations = [
 
 export const currencyCodes = [...new Set(["KRW", "USD", ...destinations.map(({ currency }) => currency)])];
 
+export const localePages = [
+  { path: "", locale: "en", label: "English", currency: "USD" },
+  { path: "ko", locale: "ko", label: "한국어", currency: "KRW" },
+  { path: "ja", locale: "ja", label: "日本語", currency: "JPY" },
+  { path: "zh-tw", locale: "zh-TW", label: "繁體中文", currency: "TWD" },
+  { path: "zh-cn", locale: "zh-CN", label: "简体中文", currency: "CNY" },
+  { path: "th", locale: "th", label: "ไทย", currency: "THB" },
+  { path: "vi", locale: "vi", label: "Tiếng Việt", currency: "VND" },
+  { path: "fil", locale: "fil", label: "Filipino", currency: "PHP" },
+  { path: "ms", locale: "ms", label: "Bahasa Melayu", currency: "MYR" },
+  { path: "id", locale: "id", label: "Bahasa Indonesia", currency: "IDR" },
+  { path: "fr", locale: "fr", label: "Français", currency: "EUR" },
+  { path: "de", locale: "de", label: "Deutsch", currency: "EUR" },
+  { path: "it", locale: "it", label: "Italiano", currency: "EUR" },
+  { path: "es", locale: "es", label: "Español", currency: "EUR" },
+  { path: "cs", locale: "cs", label: "Čeština", currency: "CZK" },
+  { path: "tr", locale: "tr", label: "Türkçe", currency: "TRY" },
+  { path: "ar", locale: "ar", label: "العربية", currency: "AED" },
+];
+
 export function destinationByPath(path) {
   return destinations.find((item) => item.path === path);
 }

@@ -1,12 +1,15 @@
-import { currencyCodes, destinationByPath, destinations, flag } from "./data.js";
+import { currencyCodes, destinationByPath, destinations, flag, localePages } from "./data.js";
 import { interpolate, messages } from "./i18n.js";
 import { RATE_STORAGE_KEY, buildRateUrl, convert, isFresh, parseRateResponse } from "./rates.js";
 
 const pageDestination = destinationByPath(document.documentElement.dataset.destination);
-const locale = pageDestination?.locale || "en";
+const requestedLocale = document.documentElement.dataset.locale;
+const localePage = localePages.find((item) => item.locale === requestedLocale);
+const locale = localePage?.locale || pageDestination?.locale || "en";
 const text = messages(locale);
 const selectionKey = "fx-selected-currencies-v1";
-const initialCurrencies = [...new Set(["KRW", pageDestination?.currency || "THB", "USD"])];
+const initialCurrencies = [...new Set(["KRW", pageDestination?.currency || localePage?.currency || "THB", "USD"])];
+if (initialCurrencies.length < 3) initialCurrencies.push("THB");
 
 const fieldsRoot = document.querySelector("#currencyFields");
 const countText = document.querySelector("#currencyCount");
@@ -18,6 +21,7 @@ const dialog = document.querySelector("#currencyDialog");
 const searchInput = document.querySelector("#currencySearch");
 const destinationList = document.querySelector("#destinationList");
 const emptyState = document.querySelector("#emptyState");
+const languageSelect = document.querySelector("#languageSelect");
 
 let selectedCurrencies = loadSelection();
 let rateState = loadRates();
@@ -224,6 +228,18 @@ function applyTranslations() {
   document.querySelector("#popularTitle").textContent = text.popular;
   emptyState.textContent = text.empty;
   document.querySelector("#closeDialog").ariaLabel = text.close;
+  languageSelect.ariaLabel = text.language;
+  languageSelect.title = text.language;
+}
+
+function renderLanguageSelector() {
+  languageSelect.replaceChildren(...localePages.map((item) => {
+    const option = document.createElement("option");
+    option.value = item.path;
+    option.textContent = item.label;
+    option.selected = item.locale === locale;
+    return option;
+  }));
 }
 
 document.querySelector("#addButton").addEventListener("click", () => {
@@ -235,6 +251,10 @@ document.querySelector("#addButton").addEventListener("click", () => {
 document.querySelector("#closeDialog").addEventListener("click", () => dialog.close());
 searchInput.addEventListener("input", () => renderDestinations(searchInput.value));
 refreshButton.addEventListener("click", () => refreshRates({ force: true }));
+languageSelect.addEventListener("change", () => {
+  const appRoot = new URL("../", import.meta.url);
+  window.location.href = new URL(languageSelect.value ? `${languageSelect.value}/` : "./", appRoot).href;
+});
 
 window.addEventListener("beforeinstallprompt", (event) => {
   event.preventDefault();
@@ -254,6 +274,7 @@ if ("serviceWorker" in navigator) {
 }
 
 applyTranslations();
+renderLanguageSelector();
 renderCurrencies();
 refreshRates();
 setInterval(() => refreshRates(), 60 * 1000);
