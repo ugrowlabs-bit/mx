@@ -2,6 +2,9 @@
 
 태국 바트, 원화, 달러를 한 화면에서 즉시 비교하는 모바일 우선 PWA다.
 
+- 공개 사이트: https://ugrowlabs-bit.github.io/krw-usd-thb-converter/
+- GitHub 저장소: https://github.com/ugrowlabs-bit/krw-usd-thb-converter
+
 ## 로컬 실행
 
 ```bash
@@ -20,4 +23,4 @@ npm run dev
 
 ## 배포
 
-정적 파일만 사용하므로 정적 호스팅 서비스에 저장소 루트를 그대로 배포할 수 있다. 서비스 워커와 설치 기능은 HTTPS 또는 localhost에서 동작한다.
+GitHub Pages가 `main` 브랜치의 저장소 루트를 배포한다. `main`에 변경을 푸시하면 사이트가 자동 갱신된다. 서비스 워커와 설치 기능은 HTTPS 또는 localhost에서 동작한다.
