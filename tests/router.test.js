@@ -16,6 +16,11 @@ test("언어와 통화 조합 URL을 만든다", () => {
   );
 });
 
+test("기본 영어 URL에도 언어 코드를 포함한다", () => {
+  assert.equal(buildRoute(new URL("https://example.com/mx/"), "en", ["USD"]), "https://example.com/mx/en/usd/");
+  assert.equal(buildRoute(new URL("https://example.com/mx/"), "en", ["USD", "EUR"]), "https://example.com/mx/en/usd/eur/");
+});
+
 test("대소문자와 중복·지원하지 않는 통화를 정규화한다", () => {
   const route = parseRoute("/mx/KO/krw/KRW/xxx/jpy/", "/mx/", localePages, currencyCodes);
   assert.equal(route.localePage.locale, "ko");

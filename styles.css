@@ -10,19 +10,28 @@ h1 { margin: 0; font-size: clamp(2.5rem, 12vw, 4.2rem); line-height: .86; letter
 .intro { max-width: 330px; margin: 14px 0 0; color: #6c7067; font-size: .94rem; line-height: 1.5; }
 .hero-actions { display: flex; flex: 0 0 auto; flex-direction: column; align-items: flex-end; gap: 8px; }
 .language-select { max-width: 130px; min-height: 38px; padding: 0 28px 0 11px; border: 1px solid rgba(31, 33, 29, .12); border-radius: 999px; outline: none; background: rgba(255, 255, 255, .76); color: #32352f; font-size: .72rem; font-weight: 750; }
-.install-button, .refresh-button, .add-button, .close-button, .row-actions button, .destination-option { border: 0; cursor: pointer; }
+.install-button, .refresh-button, .add-button, .close-button, .destination-option { border: 0; cursor: pointer; }
 .install-button { flex: 0 0 auto; padding: 10px 12px; border-radius: 999px; background: #1f211d; color: white; font-size: .72rem; font-weight: 750; }
+.install-dialog { width: min(calc(100% - 36px), 380px); margin: auto; padding: 26px 24px 24px; border: 0; border-radius: 24px; background: #fffdf8; color: #1f211d; text-align: center; box-shadow: 0 30px 100px rgba(25, 31, 24, .28); }
+.install-dialog::backdrop { background: rgba(25, 29, 24, .48); backdrop-filter: blur(3px); }
+.install-dialog-close { position: absolute; top: 10px; right: 10px; width: 38px; height: 38px; border: 0; border-radius: 50%; background: #edf1e9; color: #62675e; cursor: pointer; font-size: 1.2rem; }
+.install-dialog-icon { display: grid; width: 52px; height: 52px; margin: 0 auto 14px; place-items: center; border-radius: 16px; background: #e8f4e9; color: #267347; font-size: 1.5rem; font-weight: 850; }
+.install-dialog h2 { margin: 0 0 9px; font-size: 1.1rem; }
+.install-dialog p { margin: 0; color: #6f746b; font-size: .85rem; line-height: 1.6; }
+.first-use-guide { margin: -8px 0 16px; padding: 13px 15px; border: 1px solid rgba(38, 115, 71, .14); border-radius: 16px; background: #edf7ed; color: #3e5142; }
+.first-use-guide strong { display: block; margin-bottom: 3px; color: #267347; font-size: .72rem; letter-spacing: .02em; }
+.first-use-guide p { margin: 0; font-size: .78rem; line-height: 1.5; }
 .converter { overflow: hidden; scroll-margin-top: max(10px, env(safe-area-inset-top)); border: 1px solid rgba(31, 33, 29, .12); border-radius: 24px; background: rgba(255, 255, 255, .82); box-shadow: 0 18px 60px rgba(42, 52, 39, .1); backdrop-filter: blur(16px); }
 .section-heading { display: flex; align-items: center; justify-content: space-between; padding: 17px 18px 10px; }
 .section-heading h2 { margin: 0; font-size: .72rem; color: #777b72; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
 .section-heading span { display: grid; place-items: center; min-width: 24px; height: 24px; border-radius: 99px; background: #e8f4e9; color: #267347; font-size: .72rem; font-weight: 800; }
-.currency-field { position: relative; display: grid; grid-template-columns: 24px 42px 76px minmax(0, 1fr); align-items: center; min-height: 86px; padding: 12px 14px 12px 8px; border-bottom: 1px solid rgba(31, 33, 29, .08); transition: background 160ms ease, transform 160ms ease, box-shadow 160ms ease; }
+.currency-field { position: relative; display: grid; grid-template-columns: 40px 42px 76px minmax(0, 1fr); align-items: center; min-height: 86px; padding: 12px 14px 12px 2px; border-bottom: 1px solid rgba(31, 33, 29, .08); transition: background 160ms ease, transform 160ms ease, box-shadow 160ms ease; touch-action: pan-y; }
 .currency-field.active { background: #f5fbf4; }
 .currency-field.dragging { z-index: 5; background: #f5fbf4; box-shadow: 0 10px 30px rgba(28, 43, 29, .16); transform: scale(1.015); }
-.currency-field.swiping { box-shadow: 110px 0 0 #d9584f; transition: none; }
+.currency-field.swiping { box-shadow: var(--swipe-shadow-x, 110px) 0 0 #d9584f; transition: none; }
 .is-dragging .currency-field:not(.dragging) { transition: transform 120ms ease; }
 .currency-field.home-currency::before { position: absolute; inset-block: 13px; inset-inline-start: 0; width: 3px; border-radius: 0 4px 4px 0; background: #3b9b62; content: ""; }
-.drag-handle { display: grid; width: 22px; height: 38px; place-items: center; padding: 0; border: 0; outline: 0; background: transparent; color: #9ca198; cursor: grab; font-size: 1rem; touch-action: none; user-select: none; }
+.drag-handle { display: grid; width: 40px; height: 52px; place-items: center; padding: 0; border: 0; outline: 0; background: transparent; color: #7e847a; cursor: grab; font-size: 1.15rem; touch-action: none; user-select: none; }
 .drag-handle:active { color: #267347; cursor: grabbing; }
 .currency-symbol { display: grid; place-items: center; width: 35px; height: 35px; overflow: hidden; border-radius: 50%; background: #edf1e9; font-size: .92rem; font-weight: 850; }
 .currency-meta { display: flex; min-width: 0; flex-direction: column; gap: 3px; }
@@ -30,10 +39,6 @@ h1 { margin: 0; font-size: clamp(2.5rem, 12vw, 4.2rem); line-height: .86; letter
 .currency-meta small { overflow: hidden; color: #888c83; font-size: .64rem; text-overflow: ellipsis; white-space: nowrap; }
 .currency-field input { width: 100%; min-width: 0; border: 0; outline: 0; background: transparent; color: #1f211d; font-size: clamp(1.45rem, 7.5vw, 2.1rem); font-weight: 760; text-align: end; letter-spacing: -.045em; }
 .currency-field input::placeholder { color: #c6c9c1; }
-.row-actions { position: absolute; z-index: 2; inset-block-start: 5px; inset-inline-end: 7px; display: flex; gap: 2px; opacity: 0; transform: translateY(-3px); transition: opacity 140ms, transform 140ms; }
-.currency-field:focus-within .row-actions, .currency-field:hover .row-actions { opacity: 1; transform: none; }
-.row-actions button { display: grid; place-items: center; width: 25px; height: 25px; border-radius: 8px; background: #edf1e9; color: #62675e; font-size: .7rem; }
-.row-actions button:active { background: #dfe8dc; }
 .add-button { display: flex; width: calc(100% - 28px); min-height: 48px; align-items: center; justify-content: center; gap: 7px; margin: 14px; border-radius: 14px; background: #1f211d; color: white; font-size: .84rem; font-weight: 780; }
 .add-button span { color: #85d69d; font-size: 1.25rem; line-height: 1; }
 .rate-card { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 14px; padding: 13px 3px; color: #6f746b; font-size: .72rem; }
@@ -58,13 +63,14 @@ h1 { margin: 0; font-size: clamp(2.5rem, 12vw, 4.2rem); line-height: .86; letter
 .destination-option { display: grid; grid-template-columns: 38px minmax(0, 1fr) 28px; align-items: center; min-height: 62px; padding: 8px 10px; border-radius: 14px; background: transparent; color: inherit; text-align: start; }
 .destination-option:hover, .destination-option:focus-visible { background: #f0f5ed; outline: none; }
 .destination-option:disabled { cursor: default; opacity: .48; }
-.destination-option .flag { font-size: 1.45rem; }
+.destination-option .flag { display: grid; width: 38px; height: 38px; place-items: center; border-radius: 50%; background: #edf1e9; font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif; font-size: 1.45rem; line-height: 1; }
 .destination-option span:nth-child(2) { display: flex; min-width: 0; flex-direction: column; gap: 3px; }
 .destination-option strong { font-size: .88rem; }
 .destination-option small { overflow: hidden; color: #858a81; font-size: .7rem; text-overflow: ellipsis; white-space: nowrap; }
+.destination-option .currency-unit { color: #267347; font-size: .66rem; font-weight: 750; }
 .destination-option b { display: grid; place-items: center; width: 27px; height: 27px; border-radius: 50%; background: #e6f2e6; color: #267347; }
 .empty-state { padding: 30px 10px; color: #858a81; text-align: center; }
 @keyframes pulse { to { opacity: .3; } }
 @media (min-width: 700px) { .app-shell { padding-block: 48px; } .currency-dialog { margin: auto; } }
-@media (hover: none) { .row-actions { opacity: 1; transform: none; } .currency-field { padding-block-start: 18px; } }
+@media (hover: none) { .currency-field { padding-block-start: 18px; } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; } }

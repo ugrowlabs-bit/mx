@@ -9,7 +9,7 @@ export function parseRoute(pathname, appRootPath, localePages, currencyCodes) {
 }
 
 export function buildRoute(appRootUrl, localePath, currencies) {
-  const language = localePath || "en";
+  const language = `${localePath || "en"}/`;
   const currencyPath = currencies.map((code) => code.toLowerCase()).join("/");
-  return new URL(`${language}/${currencyPath}${currencyPath ? "/" : ""}`, appRootUrl).href;
+  return new URL(`${language}${currencyPath}${currencyPath ? "/" : ""}`, appRootUrl).href;
 }

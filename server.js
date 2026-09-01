@@ -23,8 +23,12 @@ createServer(async (request, response) => {
     response.writeHead(200, { "Content-Type": mime[extname(filePath)] || "application/octet-stream", "Cache-Control": "no-cache" });
     response.end(await readFile(filePath));
   } catch {
-    response.writeHead(404, { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-cache" });
-    response.end(await readFile(join(root, "404.html")));
+    const acceptsHtml = request.headers.accept?.includes("text/html");
+    response.writeHead(acceptsHtml ? 200 : 404, {
+      "Content-Type": acceptsHtml ? "text/html; charset=utf-8" : "text/plain; charset=utf-8",
+      "Cache-Control": "no-cache",
+    });
+    response.end(acceptsHtml ? await readFile(join(root, "404.html")) : "Not found");
   }
 }).listen(port, "0.0.0.0", () => {
   const addresses = Object.values(networkInterfaces()).flat().filter((item) => item?.family === "IPv4" && !item.internal);

@@ -1,4 +1,5 @@
-import { currencyCodes, destinationByPath, destinations, flag, localePages } from "./data.js";
+import { currencyChoices, currencyCodes, destinationByPath, destinations, flag, localePages } from "./data.js";
+import { canStartSwipe, shouldDeleteAfterSwipe } from "./gestures.js";
 import { interpolate, messages } from "./i18n.js";
 import { RATE_STORAGE_KEY, buildRateUrl, convert, isFresh, parseRateResponse } from "./rates.js";
 import { buildRoute, parseRoute } from "./router.js";
@@ -11,8 +12,7 @@ const localePage = route.localePage || localePages.find((item) => item.locale ==
 const locale = localePage?.locale || pageDestination?.locale || "en";
 const text = messages(locale);
 const selectionKey = "fx-selected-currencies-v1";
-const initialCurrencies = [...new Set(["KRW", pageDestination?.currency || localePage?.currency || "THB", "USD"])];
-if (initialCurrencies.length < 3) initialCurrencies.push("THB");
+const initialCurrencies = [pageDestination?.currency || localePage?.currency || "USD"];
 
 const fieldsRoot = document.querySelector("#currencyFields");
 const countText = document.querySelector("#currencyCount");
@@ -20,20 +20,54 @@ const statusText = document.querySelector("#rateStatus");
 const statusDot = document.querySelector("#statusDot");
 const refreshButton = document.querySelector("#refreshButton");
 const installButton = document.querySelector("#installButton");
+const installDialog = document.querySelector("#installDialog");
+const closeInstallDialog = document.querySelector("#closeInstallDialog");
 const dialog = document.querySelector("#currencyDialog");
 const searchInput = document.querySelector("#currencySearch");
 const destinationList = document.querySelector("#destinationList");
 const emptyState = document.querySelector("#emptyState");
 const languageSelect = document.querySelector("#languageSelect");
+const firstUseGuide = document.querySelector("#firstUseGuide");
 
+document.querySelector('link[rel="icon"]').href = new URL("../icons/icon.svg", import.meta.url).href;
+document.querySelector('link[rel="manifest"]').href = new URL("../manifest.webmanifest", import.meta.url).href;
+
+const isBareRoot = window.location.pathname.replace(/\/+$/, "/") === appRoot.pathname.replace(/\/+$/, "/");
 let selectedCurrencies = loadSelection();
 let rateState = loadRates();
 let activeCurrency = selectedCurrencies[0];
 let activeAmount = 100;
 let deferredInstallPrompt = null;
 
+const installHelp = locale === "ko"
+  ? {
+      title: "바로가기 추가",
+      ios: "Safari 아래의 공유 버튼을 누른 뒤 ‘홈 화면에 추가’를 선택하세요.",
+      other: "브라우저 메뉴에서 ‘홈 화면에 추가’ 또는 ‘즐겨찾기’를 선택하세요.",
+    }
+  : {
+      title: "Add a shortcut",
+      ios: "Tap Share in Safari, then choose Add to Home Screen.",
+      other: "Open your browser menu and choose Add to Home screen or Bookmark.",
+    };
+const isStandalone = window.matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+installButton.hidden = isStandalone;
+
+function hasStoredSelection() {
+  try {
+    const stored = JSON.parse(localStorage.getItem(selectionKey));
+    return Array.isArray(stored) && stored.some((code) => currencyCodes.includes(code));
+  } catch {
+    return false;
+  }
+}
+
+if (firstUseGuide) firstUseGuide.hidden = !isBareRoot || hasStoredSelection();
+syncRoute();
+
 function loadSelection() {
   if (route.currencies.length) return route.currencies;
+  if (isBareRoot || route.localePage) return initialCurrencies;
   try {
     const stored = JSON.parse(localStorage.getItem(selectionKey));
     const valid = stored?.filter((code) => currencyCodes.includes(code));
@@ -55,6 +89,7 @@ function loadRates() {
 
 function saveSelection() {
   localStorage.setItem(selectionKey, JSON.stringify(selectedCurrencies));
+  if (firstUseGuide) firstUseGuide.hidden = true;
 }
 
 function syncRoute() {
@@ -73,6 +108,15 @@ function currencyName(code) {
 function currencySymbol(code) {
   return new Intl.NumberFormat(locale, { style: "currency", currency: code, currencyDisplay: "narrowSymbol" })
     .formatToParts(0).find((part) => part.type === "currency")?.value || code;
+}
+
+function currencyUnit(code) {
+  return new Intl.NumberFormat(locale, {
+    style: "currency",
+    currency: code,
+    currencyDisplay: "narrowSymbol",
+    maximumFractionDigits: 0,
+  }).format(1);
 }
 
 function parseAmount(value) {
@@ -100,11 +144,6 @@ function createCurrencyRow(code, index) {
     <span class="currency-symbol">${currencySymbol(code)}</span>
     <label class="currency-meta" for="currency-${code}"><strong>${code}</strong><small>${currencyName(code)}</small></label>
     <input id="currency-${code}" inputmode="decimal" autocomplete="off" aria-label="${currencyName(code)}" placeholder="0" />
-    <div class="row-actions">
-      <button type="button" data-action="up" title="${text.moveUp}" aria-label="${text.moveUp}">↑</button>
-      <button type="button" data-action="down" title="${text.moveDown}" aria-label="${text.moveDown}">↓</button>
-      <button type="button" data-action="remove" title="${text.remove}" aria-label="${text.remove}">×</button>
-    </div>
   `;
 
   const input = label.querySelector("input");
@@ -115,8 +154,13 @@ function createCurrencyRow(code, index) {
     scrollConverterToTop();
   });
   input.addEventListener("blur", () => label.classList.remove("active"));
-  label.querySelectorAll("[data-action]").forEach((button) => button.addEventListener("click", () => handleRowAction(code, button.dataset.action)));
-  attachDragEvents(label.querySelector(".drag-handle"), label);
+  const dragHandle = label.querySelector(".drag-handle");
+  dragHandle.addEventListener("keydown", (event) => {
+    if (event.key !== "ArrowUp" && event.key !== "ArrowDown") return;
+    event.preventDefault();
+    handleRowAction(code, event.key === "ArrowUp" ? "up" : "down");
+  });
+  attachDragEvents(dragHandle, label);
   attachSwipeEvents(label, code);
   return label;
 }
@@ -139,12 +183,13 @@ function attachSwipeEvents(row, code) {
   const reset = () => {
     row.classList.remove("swiping");
     row.style.removeProperty("transform");
+    row.style.removeProperty("--swipe-shadow-x");
     offsetX = 0;
     swiping = false;
   };
 
   row.addEventListener("pointerdown", (event) => {
-    if (event.button !== 0 || event.target.closest("input, button")) return;
+    if (event.button !== 0 || !canStartSwipe(event.target)) return;
     startX = event.clientX;
     startY = event.clientY;
     offsetX = 0;
@@ -160,16 +205,16 @@ function attachSwipeEvents(row, code) {
       reset();
       return;
     }
-    if (deltaX >= 0) return;
-    offsetX = Math.max(deltaX, -110);
+    offsetX = Math.max(-110, Math.min(deltaX, 110));
     row.classList.add("swiping");
+    row.style.setProperty("--swipe-shadow-x", offsetX < 0 ? "110px" : "-110px");
     row.style.transform = `translateX(${offsetX}px)`;
     event.preventDefault();
   });
 
   const finish = () => {
     if (!swiping) return;
-    if (offsetX <= -72 && selectedCurrencies.length > 1) {
+    if (shouldDeleteAfterSwipe(offsetX, selectedCurrencies.length)) {
       reset();
       handleRowAction(code, "remove");
     } else {
@@ -184,10 +229,16 @@ function attachSwipeEvents(row, code) {
 
 function attachDragEvents(handle, row) {
   let dragging = false;
+  let pointerId = null;
 
   const finish = () => {
     if (!dragging) return;
     dragging = false;
+    if (fieldsRoot.hasPointerCapture(pointerId)) fieldsRoot.releasePointerCapture(pointerId);
+    fieldsRoot.removeEventListener("pointermove", move);
+    fieldsRoot.removeEventListener("pointerup", finish);
+    fieldsRoot.removeEventListener("pointercancel", finish);
+    fieldsRoot.removeEventListener("lostpointercapture", finish);
     row.classList.remove("dragging");
     fieldsRoot.classList.remove("is-dragging");
     selectedCurrencies = [...fieldsRoot.querySelectorAll(".currency-field")].map((item) => item.dataset.currency);
@@ -196,27 +247,30 @@ function attachDragEvents(handle, row) {
     renderCurrencies();
   };
 
+  const move = (event) => {
+    if (!dragging || event.pointerId !== pointerId) return;
+    event.preventDefault();
+    const siblings = [...fieldsRoot.querySelectorAll(".currency-field:not(.dragging)")];
+    const next = siblings.find((item) => {
+      const rect = item.getBoundingClientRect();
+      return event.clientY < rect.top + rect.height / 2;
+    });
+    fieldsRoot.insertBefore(row, next || null);
+  };
+
   handle.addEventListener("pointerdown", (event) => {
     if (event.button !== 0) return;
     dragging = true;
-    handle.setPointerCapture(event.pointerId);
+    pointerId = event.pointerId;
+    fieldsRoot.setPointerCapture(pointerId);
+    fieldsRoot.addEventListener("pointermove", move);
+    fieldsRoot.addEventListener("pointerup", finish);
+    fieldsRoot.addEventListener("pointercancel", finish);
+    fieldsRoot.addEventListener("lostpointercapture", finish);
     row.classList.add("dragging");
     fieldsRoot.classList.add("is-dragging");
     event.preventDefault();
   });
-
-  handle.addEventListener("pointermove", (event) => {
-    if (!dragging) return;
-    const target = document.elementFromPoint(event.clientX, event.clientY)?.closest(".currency-field");
-    if (!target || target === row || target.parentElement !== fieldsRoot) return;
-    const targetRect = target.getBoundingClientRect();
-    const insertAfter = event.clientY > targetRect.top + targetRect.height / 2;
-    fieldsRoot.insertBefore(row, insertAfter ? target.nextSibling : target);
-  });
-
-  handle.addEventListener("pointerup", finish);
-  handle.addEventListener("pointercancel", finish);
-  handle.addEventListener("lostpointercapture", finish);
 }
 
 function renderCurrencies() {
@@ -262,7 +316,7 @@ function updateAllValues() {
 
 function renderDestinations(query = "") {
   const normalized = query.trim().toLocaleLowerCase(locale);
-  const matches = destinations.filter((item) => {
+  const matches = currencyChoices.filter((item) => {
     const searchText = `${countryName(item.country)} ${item.currency} ${currencyName(item.currency)}`.toLocaleLowerCase(locale);
     return !normalized || searchText.includes(normalized);
   });
@@ -272,7 +326,7 @@ function renderDestinations(query = "") {
     button.type = "button";
     button.className = "destination-option";
     button.disabled = added;
-    button.innerHTML = `<span class="flag">${flag(item.country)}</span><span><strong>${countryName(item.country)}</strong><small>${item.currency} · ${currencyName(item.currency)}</small></span><b>${added ? "✓" : "+"}</b>`;
+    button.innerHTML = `<span class="flag">${flag(item.country)}</span><span><strong>${countryName(item.country)}</strong><small>${item.currency} · ${currencyName(item.currency)}</small><small class="currency-unit">1 ${item.currency} · ${currencyUnit(item.currency)}</small></span><b>${added ? "✓" : "+"}</b>`;
     button.addEventListener("click", () => addCurrency(item.currency));
     return button;
   }));
@@ -300,6 +354,15 @@ function describeTimestamp(timestamp) {
 }
 
 async function refreshRates({ force = false } = {}) {
+  if (selectedCurrencies.length === 1) {
+    const code = selectedCurrencies[0];
+    rateState = { base: code, rates: { [code]: 1 }, fetchedAt: Date.now(), rateDate: null };
+    showRateStatus("fresh", interpolate(text.updated, { time: describeTimestamp(rateState.fetchedAt) }));
+    refreshButton.disabled = false;
+    updateAllValues();
+    return;
+  }
+
   if (!force && isFresh(rateState, selectedCurrencies)) {
     showRateStatus("fresh", interpolate(text.updated, { time: describeTimestamp(rateState.fetchedAt) }));
     updateAllValues();
@@ -335,6 +398,11 @@ function applyTranslations() {
   document.querySelector("#selectedTitle").textContent = text.selected;
   document.querySelector("#addButton").lastChild.textContent = ` ${text.add}`;
   installButton.textContent = text.install;
+  document.querySelector("#installTitle").textContent = installHelp.title;
+  document.querySelector("#installInstructions").textContent = /iPhone|iPad|iPod/i.test(navigator.userAgent)
+    ? installHelp.ios
+    : installHelp.other;
+  closeInstallDialog.ariaLabel = text.close;
   refreshButton.textContent = text.refresh;
   document.querySelector("#notice").textContent = text.notice;
   searchInput.placeholder = text.search;
@@ -374,9 +442,17 @@ window.addEventListener("beforeinstallprompt", (event) => {
   installButton.hidden = false;
 });
 installButton.addEventListener("click", async () => {
-  if (!deferredInstallPrompt) return;
-  deferredInstallPrompt.prompt();
-  await deferredInstallPrompt.userChoice;
+  if (deferredInstallPrompt) {
+    deferredInstallPrompt.prompt();
+    const { outcome } = await deferredInstallPrompt.userChoice;
+    deferredInstallPrompt = null;
+    if (outcome === "accepted") installButton.hidden = true;
+    return;
+  }
+  installDialog.showModal();
+});
+closeInstallDialog.addEventListener("click", () => installDialog.close());
+window.addEventListener("appinstalled", () => {
   deferredInstallPrompt = null;
   installButton.hidden = true;
 });

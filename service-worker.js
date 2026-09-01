@@ -1,4 +1,4 @@
-const CACHE_NAME = "mx-shell-v5";
+const CACHE_NAME = "mx-shell-v9";
 const APP_SHELL = [
   "./",
   "./index.html",
@@ -8,6 +8,7 @@ const APP_SHELL = [
   "./icons/icon.svg",
   "./src/app.js",
   "./src/data.js",
+  "./src/gestures.js",
   "./src/i18n.js",
   "./src/rates.js",
   "./src/router.js",

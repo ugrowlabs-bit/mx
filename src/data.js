@@ -27,9 +27,13 @@ export const destinations = [
 ];
 
 export const currencyCodes = [...new Set(["KRW", "USD", ...destinations.map(({ currency }) => currency)])];
+export const currencyChoices = [
+  { country: "KR", currency: "KRW" },
+  ...destinations,
+];
 
 export const localePages = [
-  { path: "", locale: "en", label: "English", currency: "USD" },
+  { path: "en", locale: "en", label: "English", currency: "USD" },
   { path: "ko", locale: "ko", label: "한국어", currency: "KRW" },
   { path: "ja", locale: "ja", label: "日本語", currency: "JPY" },
   { path: "zh-tw", locale: "zh-TW", label: "繁體中文", currency: "TWD" },

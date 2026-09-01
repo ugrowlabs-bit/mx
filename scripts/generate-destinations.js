@@ -10,19 +10,21 @@ const appPage = ({ locale }, assetPrefix = "../") => `<!doctype html>
     <meta name="description" content="Travel currency converter in ${locale}." />
     <link rel="manifest" href="${assetPrefix}manifest.webmanifest" />
     <link rel="icon" href="${assetPrefix}icons/icon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="${assetPrefix}styles.css?v=7" />
+    <link rel="stylesheet" href="${assetPrefix}styles.css?v=11" />
     <title>Money Exchange — Travel currency converter</title>
   </head>
   <body>
     <main class="app-shell">
-      <header class="hero"><div><p class="eyebrow" id="eyebrow">TRAVEL MONEY, SIMPLIFIED</p><h1>Money<br />Exchange</h1><p class="intro" id="intro">Compare every currency you need in one clear view.</p></div><div class="hero-actions"><select class="language-select" id="languageSelect" aria-label="Page language"></select><button class="install-button" id="installButton" type="button" hidden>Add to home screen</button></div></header>
+      <header class="hero"><div><p class="eyebrow" id="eyebrow">TRAVEL MONEY, SIMPLIFIED</p><h1>Money<br />Exchange</h1><p class="intro" id="intro">Compare every currency you need in one clear view.</p></div><div class="hero-actions"><select class="language-select" id="languageSelect" aria-label="Page language"></select><button class="install-button" id="installButton" type="button">Add to home screen</button></div></header>
+      <aside class="first-use-guide" id="firstUseGuide" aria-labelledby="firstUseTitle" hidden><strong id="firstUseTitle">How to use</strong><p>Enter an amount to convert them all. Drag ⠿ to reorder, swipe either way to remove, or add another currency.</p></aside>
       <section class="converter" aria-labelledby="selectedTitle"><div class="section-heading"><h2 id="selectedTitle">Selected currencies</h2><span id="currencyCount"></span></div><div id="currencyFields"></div><button class="add-button" id="addButton" type="button"><span>＋</span> Add currency</button></section>
       <section class="rate-card" aria-live="polite"><div class="status-line"><span class="status-dot" id="statusDot"></span><span id="rateStatus">Checking the latest rates…</span></div><button class="refresh-button" id="refreshButton" type="button">Refresh now</button></section>
       <p class="notice" id="notice">Reference rates only. Card and cash exchange rates may include fees and markup.</p>
     </main>
     <dialog class="currency-dialog" id="currencyDialog"><div class="dialog-header"><label class="search-box"><span>⌕</span><input id="currencySearch" type="search" autocomplete="off" placeholder="Search country or currency" /></label><button class="close-button" id="closeDialog" type="button" aria-label="Close">×</button></div><h2 id="popularTitle">Popular destinations</h2><div class="destination-list" id="destinationList"></div><p class="empty-state" id="emptyState" hidden>No matching destination</p></dialog>
+    <dialog class="install-dialog" id="installDialog" aria-labelledby="installTitle"><button class="install-dialog-close" id="closeInstallDialog" type="button" aria-label="Close">×</button><div class="install-dialog-icon">↗</div><h2 id="installTitle">Add a shortcut</h2><p id="installInstructions">Open your browser menu and choose Add to Home screen or Bookmark.</p></dialog>
     <noscript>JavaScript is required to use this converter.</noscript>
-    <script type="module" src="${assetPrefix}src/app.js?v=7"></script>
+    <script type="module" src="${assetPrefix}src/app.js?v=11"></script>
   </body>
 </html>
 `;
@@ -35,6 +37,10 @@ for (const page of localePages) {
   const languagePath = page.path || "en";
   await mkdir(languagePath, { recursive: true });
   await writeFile(`${languagePath}/index.html`, appPage(page));
+  const defaultCurrencyPath = page.currency.toLowerCase();
+  const defaultRoute = `${languagePath}/${defaultCurrencyPath}`;
+  await mkdir(defaultRoute, { recursive: true });
+  await writeFile(`${defaultRoute}/index.html`, appPage(page, "../../"));
   await mkdir(`${languagePath}/krw/usd/thb`, { recursive: true });
   await writeFile(`${languagePath}/krw/usd/thb/index.html`, appPage(page, "../../../../"));
 }
@@ -50,4 +56,6 @@ for (const destination of destinations) {
   await writeFile(`${destination.path}/index.html`, redirectPage(languagePath));
 }
 
-console.log(`Generated ${localePages.length} language pages with KRW/USD/THB presets, an uppercase KO alias, and ${destinations.length} compatibility redirects.`);
+await writeFile("404.html", appPage(localePages.find(({ locale }) => locale === "en"), "/mx/"));
+
+console.log(`Generated ${localePages.length} language pages with single-currency defaults and KRW/USD/THB presets, an uppercase KO alias, and ${destinations.length} compatibility redirects.`);
